@@ -13,6 +13,7 @@ export interface MultimediaProject {
   year: string;
   client: string;
   image: string;
+  images?: string[];
   tools: string[];
   summary: string;
   deliverables: string[];
@@ -35,4 +36,9 @@ export interface InquiryTier {
   description: string;
   deliverables: string[];
   featured?: boolean;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'model';
+  text: string;
 }

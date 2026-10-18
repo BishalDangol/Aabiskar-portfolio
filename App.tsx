@@ -16,14 +16,19 @@ import {
   Menu, 
   Volume2, 
   VolumeX, 
-  Clock 
+  Clock,
+  Shield
 } from 'lucide-react';
 import FluidBackground from './components/FluidBackground';
 import CustomCursor from './components/CustomCursor';
 import ProjectCard from './components/ProjectCard';
+import AdminDashboard, { AUTHORIZED_ADMIN_EMAIL } from './components/AdminDashboard';
+import AIChat from './components/AIChat';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase';
 import { MultimediaProject, MultimediaCategory, CraftPillar, InquiryTier } from './types';
 
-// Authentic Multimedia Portfolio Works for Aabiskar (12 curated projects)
+// Curated Master Portfolio Works for Aabiskar (12 initial projects)
 const PROJECTS: MultimediaProject[] = [
   { 
     id: '1', 
@@ -244,13 +249,18 @@ const App: React.FC = () => {
   const opacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<MultimediaCategory>('all');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedProject, setSelectedProject] = useState<MultimediaProject | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [showreelOpen, setShowreelOpen] = useState(false);
   const [isPlayingReel, setIsPlayingReel] = useState(true);
   const [isAudioMuted, setIsAudioMuted] = useState(true);
   
+  // Live projects state synced from Firestore
+  const [portfolioProjects, setPortfolioProjects] = useState<MultimediaProject[]>(PROJECTS);
+
   // Commission form state
   const [selectedTier, setSelectedTier] = useState<string>('production');
   const [formName, setFormName] = useState('');
@@ -258,6 +268,84 @@ const App: React.FC = () => {
   const [formDetails, setFormDetails] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [logoClickCount, setLogoClickCount] = useState(0);
+
+  // Monitor if authorized admin is logged in
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAdminLoggedIn(user?.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase());
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Check URL hash or query for direct admin/login access
+  useEffect(() => {
+    const checkAdminRoute = () => {
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search.toLowerCase();
+      const pathname = window.location.pathname.toLowerCase();
+      if (
+        hash === '#admin' || 
+        hash === '#login' || 
+        search.includes('admin=true') || 
+        search.includes('login=true') ||
+        pathname.endsWith('/admin') ||
+        pathname.endsWith('/login')
+      ) {
+        setAdminOpen(true);
+      }
+    };
+
+    checkAdminRoute();
+    window.addEventListener('hashchange', checkAdminRoute);
+    window.addEventListener('popstate', checkAdminRoute);
+    return () => {
+      window.removeEventListener('hashchange', checkAdminRoute);
+      window.removeEventListener('popstate', checkAdminRoute);
+    };
+  }, []);
+
+  // Discrete keyboard shortcut: Ctrl+Shift+A or Cmd+Shift+A
+  useEffect(() => {
+    const handleGlobalKeys = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        handleOpenAdmin();
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeys);
+    return () => window.removeEventListener('keydown', handleGlobalKeys);
+  }, []);
+
+  const handleOpenAdmin = () => {
+    setAdminOpen(true);
+    if (window.location.hash !== '#admin') {
+      window.history.pushState(null, '', '#admin');
+    }
+  };
+
+  const handleCloseAdmin = () => {
+    setAdminOpen(false);
+    if (window.location.hash === '#admin' || window.location.hash === '#login') {
+      window.history.pushState(null, '', window.location.pathname + window.location.search);
+    }
+  };
+
+  // Secret trigger: Clicking brand logo 3 times in quick succession opens admin
+  const handleLogoClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setLogoClickCount(prev => {
+      const next = prev + 1;
+      if (next >= 3) {
+        handleOpenAdmin();
+        return 0;
+      }
+      setTimeout(() => setLogoClickCount(0), 1200);
+      return next;
+    });
+  };
 
   // Keyboard navigation for project modal
   useEffect(() => {
@@ -286,10 +374,10 @@ const App: React.FC = () => {
     }
   };
 
-  // Filtered list & Pagination Math
+  // Filtered list & Pagination Math from live Firestore projects
   const filteredProjects = activeCategory === 'all' 
-    ? PROJECTS 
-    : PROJECTS.filter(p => p.category === activeCategory);
+    ? portfolioProjects 
+    : portfolioProjects.filter(p => p.category === activeCategory);
 
   const totalPages = Math.ceil(filteredProjects.length / PAGE_SIZE) || 1;
   const startIndex = (currentPage - 1) * PAGE_SIZE;
@@ -313,7 +401,7 @@ const App: React.FC = () => {
 
   const navigateProject = (direction: 'next' | 'prev') => {
     if (!selectedProject) return;
-    const currentList = filteredProjects.length > 0 ? filteredProjects : PROJECTS;
+    const currentList = filteredProjects.length > 0 ? filteredProjects : portfolioProjects;
     const currentIndex = currentList.findIndex(p => p.id === selectedProject.id);
     let nextIndex;
     if (direction === 'next') {
@@ -322,6 +410,7 @@ const App: React.FC = () => {
       nextIndex = (currentIndex - 1 + currentList.length) % currentList.length;
     }
     setSelectedProject(currentList[nextIndex]);
+    setActiveImageIndex(0);
   };
 
   const handleInquirySubmit = (e: React.FormEvent) => {
@@ -338,13 +427,23 @@ const App: React.FC = () => {
     <div className="relative min-h-screen text-white selection:bg-[#00f0ff] selection:text-black cursor-auto md:cursor-none overflow-x-hidden bg-[#0a0c10]">
       <CustomCursor />
       <FluidBackground />
+      <AIChat />
+
+      {/* Admin Dashboard Drawer / Modal */}
+      <AdminDashboard
+        isOpen={adminOpen}
+        onClose={handleCloseAdmin}
+        defaultProjects={PROJECTS}
+        onProjectsUpdated={(updatedList) => setPortfolioProjects(updatedList)}
+      />
       
-      {/* Top Bar: Zone 1 (Wordmark) — Zone 2 (4 Links) — Zone 3 (1 Primary Action) */}
+      {/* Top Bar: Zone 1 (Wordmark) — Zone 2 (4 Links) — Zone 3 (Actions: Admin + Book Project) */}
       <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 md:px-12 py-5 bg-[#0a0c10] border-b border-white/10">
         {/* Zone 1: Wordmark */}
         <button 
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="font-heading text-lg md:text-xl font-bold tracking-tighter text-white hover:text-[#00f0ff] transition-colors whitespace-nowrap shrink-0 text-left cursor-pointer bg-transparent border-none"
+          onClick={handleLogoClick}
+          className="font-heading text-lg md:text-xl font-bold tracking-tighter text-white hover:text-[#00f0ff] transition-colors whitespace-nowrap shrink-0 text-left cursor-pointer bg-transparent border-none select-none"
+          title="Aabiskar"
         >
           AABISKAR
         </button>
@@ -368,8 +467,8 @@ const App: React.FC = () => {
           ))}
         </nav>
 
-        {/* Zone 3: 1 Primary Action */}
-        <div className="hidden md:flex items-center shrink-0">
+        {/* Zone 3: Action (Book Project) */}
+        <div className="hidden md:flex items-center gap-3 shrink-0">
           <button 
             onClick={() => scrollToSection('inquiries')}
             className="border border-[#00f0ff] px-6 py-2.5 text-xs font-mono font-semibold tracking-widest uppercase bg-[#00f0ff] text-black hover:bg-white hover:border-white transition-colors duration-200 whitespace-nowrap shrink-0 cursor-pointer"
@@ -412,13 +511,15 @@ const App: React.FC = () => {
                 {item.label}
               </button>
             ))}
-            
-            <button 
-              onClick={() => scrollToSection('inquiries')}
-              className="mt-6 w-full max-w-xs border border-[#00f0ff] px-8 py-3.5 text-xs font-mono font-bold tracking-widest uppercase bg-[#00f0ff] text-black"
-            >
-              Book Project
-            </button>
+
+            <div className="w-full max-w-xs space-y-3 pt-4">
+              <button 
+                onClick={() => scrollToSection('inquiries')}
+                className="w-full border border-[#00f0ff] px-8 py-3.5 text-xs font-mono font-bold tracking-widest uppercase bg-[#00f0ff] text-black hover:bg-white hover:border-white transition-colors cursor-pointer"
+              >
+                Book Project
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -516,7 +617,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* WORKS SECTION WITH PAGINATION */}
+      {/* WORKS SECTION WITH FIRESTORE SYNC & PAGINATION */}
       <section id="works" className="relative z-10 py-20 md:py-28">
         <div className="max-w-[1500px] mx-auto px-4 md:px-8">
           {/* Section Header */}
@@ -531,11 +632,11 @@ const App: React.FC = () => {
             {/* Interactive Discipline Filter Bar */}
             <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-[#12151d] rounded-lg border border-white/10">
               {[
-                { key: 'all', label: 'All Projects', count: PROJECTS.length },
-                { key: '3d', label: '3D Design', count: PROJECTS.filter(p => p.category === '3d').length },
-                { key: 'video', label: 'Video & Motion', count: PROJECTS.filter(p => p.category === 'video').length },
-                { key: 'graphic', label: 'Graphic Design', count: PROJECTS.filter(p => p.category === 'graphic').length },
-                { key: 'interactive', label: 'Interactive Media', count: PROJECTS.filter(p => p.category === 'interactive').length },
+                { key: 'all', label: 'All Projects', count: portfolioProjects.length },
+                { key: '3d', label: '3D Design', count: portfolioProjects.filter(p => p.category === '3d').length },
+                { key: 'video', label: 'Video & Motion', count: portfolioProjects.filter(p => p.category === 'video').length },
+                { key: 'graphic', label: 'Graphic Design', count: portfolioProjects.filter(p => p.category === 'graphic').length },
+                { key: 'interactive', label: 'Interactive Media', count: portfolioProjects.filter(p => p.category === 'interactive').length },
               ].map((tab) => {
                 const isActive = activeCategory === tab.key;
                 return (
@@ -569,11 +670,21 @@ const App: React.FC = () => {
               </span>
             </div>
 
-            <div className="hidden sm:flex items-center gap-2 text-gray-400">
-              <span>Page</span>
-              <span className="text-white font-bold tabular-nums">{currentPage}</span>
-              <span>of</span>
-              <span className="text-white font-bold tabular-nums">{totalPages}</span>
+            <div className="flex items-center gap-4 text-gray-400">
+              <button
+                onClick={() => setAdminOpen(true)}
+                className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-[#00f0ff] hover:underline cursor-pointer"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                <span>Manage Works in Admin</span>
+              </button>
+
+              <div className="hidden sm:flex items-center gap-2">
+                <span>Page</span>
+                <span className="text-white font-bold tabular-nums">{currentPage}</span>
+                <span>of</span>
+                <span className="text-white font-bold tabular-nums">{totalPages}</span>
+              </div>
             </div>
           </div>
 
@@ -975,7 +1086,11 @@ const App: React.FC = () => {
             <p className="text-xs font-mono text-gray-400 tracking-wider uppercase">
               MULTIMEDIA ARTIST · 3D DIRECTOR · MOTION DESIGN
             </p>
-            <p className="text-xs text-gray-500 font-mono mt-4">
+            <p 
+              onDoubleClick={handleOpenAdmin}
+              className="text-xs text-gray-500 font-mono mt-4 select-none cursor-default"
+              title="© Aabiskar"
+            >
               © {new Date().getFullYear()} Aabiskar. All creative rights reserved.
             </p>
           </div>
@@ -1146,21 +1261,61 @@ const App: React.FC = () => {
                 <ChevronRight className="w-5 h-5" />
               </button>
 
-              {/* Media Visual Container */}
-              <div className="w-full md:w-1/2 min-h-[300px] md:min-h-[550px] relative overflow-hidden bg-black flex items-center justify-center">
-                <AnimatePresence mode="wait">
-                  <motion.img 
-                    key={selectedProject.id}
-                    src={selectedProject.image} 
-                    alt={selectedProject.title} 
-                    initial={{ opacity: 0, scale: 1.02 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="w-full h-full object-cover"
-                  />
-                </AnimatePresence>
-                <div className="absolute inset-0 bg-black/20" />
+              {/* Media Visual Container with Multi-Image Support */}
+              <div className="w-full md:w-1/2 min-h-[340px] md:min-h-[550px] relative overflow-hidden bg-black flex flex-col justify-between">
+                {(() => {
+                  const mediaImages = (selectedProject.images && selectedProject.images.length > 0)
+                    ? selectedProject.images
+                    : [selectedProject.image];
+                  const activeImg = mediaImages[activeImageIndex] || selectedProject.image;
+
+                  return (
+                    <>
+                      {/* Main Active Image Display */}
+                      <div className="relative flex-1 w-full h-full min-h-[300px] flex items-center justify-center overflow-hidden">
+                        <AnimatePresence mode="wait">
+                          <motion.img 
+                            key={`${selectedProject.id}-${activeImageIndex}`}
+                            src={activeImg} 
+                            alt={`${selectedProject.title} - Image ${activeImageIndex + 1}`} 
+                            initial={{ opacity: 0, scale: 1.02 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.25 }}
+                            className="w-full h-full object-cover"
+                          />
+                        </AnimatePresence>
+                        <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+
+                        {/* Image Counter Badge if multiple images */}
+                        {mediaImages.length > 1 && (
+                          <div className="absolute top-4 left-4 z-20 bg-black/80 px-2.5 py-1 rounded text-[11px] font-mono text-[#00f0ff] border border-white/10 flex items-center gap-1.5 shadow">
+                            <span>Image {activeImageIndex + 1} of {mediaImages.length}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Interactive Thumbnail Gallery Strip if multiple images */}
+                      {mediaImages.length > 1 && (
+                        <div className="p-3 bg-[#08090d] border-t border-white/10 flex items-center gap-2 overflow-x-auto z-20">
+                          {mediaImages.map((imgUrl, idx) => (
+                            <button
+                              key={idx}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveImageIndex(idx);
+                              }}
+                              className={`w-14 h-12 rounded overflow-hidden shrink-0 border transition-all cursor-pointer ${activeImageIndex === idx ? 'border-[#00f0ff] ring-1 ring-[#00f0ff] scale-105 opacity-100' : 'border-white/20 opacity-50 hover:opacity-100'}`}
+                              title={`View Image ${idx + 1}`}
+                            >
+                              <img src={imgUrl} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Project Metadata & Narrative */}
@@ -1237,6 +1392,20 @@ const App: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Discreet floating studio admin badge visible ONLY when authorized admin is logged in */}
+      {isAdminLoggedIn && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          onClick={handleOpenAdmin}
+          className="fixed bottom-6 left-6 z-40 bg-[#0d1017]/95 backdrop-blur-md border border-[#00f0ff] px-3.5 py-2 rounded-full text-xs font-mono text-[#00f0ff] flex items-center gap-2 hover:bg-[#00f0ff] hover:text-black transition-colors cursor-pointer shadow-xl shadow-black/80"
+          title="Studio Admin Session Active (contact2bishaldangol@gmail.com)"
+        >
+          <Shield className="w-3.5 h-3.5" />
+          <span className="font-bold">Admin Mode</span>
+        </motion.button>
+      )}
     </div>
   );
 };

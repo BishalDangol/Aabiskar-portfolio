@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "project": {
+      "title": "Project",
+      "description": "A multimedia portfolio project entry created by Aabiskar",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "enum": ["3d", "video", "graphic", "interactive"] },
+        "categoryLabel": { "type": "string", "maxLength": 80 },
+        "year": { "type": "string", "maxLength": 20 },
+        "client": { "type": "string", "maxLength": 150 },
+        "image": { "type": "string" },
+        "images": { "type": "array" },
+        "tools": { "type": "array" },
+        "summary": { "type": "string", "maxLength": 5000 },
+        "deliverables": { "type": "array" },
+        "featured": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "category", "year", "client", "image", "summary"]
+    },
+    "admin": {
+      "title": "Admin",
+      "description": "Authorized administrator user profile",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/project" },
+      "description": "Collection of multimedia portfolio projects"
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/admin" },
+      "description": "Collection of authorized admin records"
+    }
+  }
+}

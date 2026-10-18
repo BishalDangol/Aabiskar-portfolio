@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // STRICT SINGLE ADMIN: Only contact2bishaldangol@gmail.com
+    function isAdmin() {
+      return isSignedIn() && 
+             request.auth.token.email != null && 
+             request.auth.token.email == 'contact2bishaldangol@gmail.com';
+    }
+
+    function isValidProject(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.category is string && (data.category in ['3d', 'video', 'graphic', 'interactive']) &&
+             data.year is string && data.year.size() <= 20 &&
+             data.client is string && data.client.size() <= 150 &&
+             data.image is string && data.image.size() <= 1500000 &&
+             data.summary is string && data.summary.size() <= 5000;
+    }
+
+    // Projects Collection (Public read for visitors, Strict Single Admin-only write)
+    match /projects/{projectId} {
+      allow get, list: if true;
+      allow create: if isAdmin() && isValidId(projectId) && isValidProject(incoming());
+      allow update: if isAdmin() && isValidId(projectId) && isValidProject(incoming());
+      allow delete: if isAdmin() && isValidId(projectId);
+    }
+
+    // Admins Collection
+    match /admins/{adminId} {
+      allow get: if isSignedIn() && (request.auth.uid == adminId || isAdmin());
+      allow list: if isAdmin();
+      allow write: if isAdmin() && isValidId(adminId);
+    }
+  }
+}

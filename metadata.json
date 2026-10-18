@@ -2,5 +2,5 @@
   "name": "Aabiskar",
   "description": "Multimedia & 3D Artist Portfolio showcasing 3D design, video & motion, graphic identity, and interactive media in a cyberpunk obsidian aesthetic.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

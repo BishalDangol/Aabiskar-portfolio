@@ -77,6 +77,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
             <span className="uppercase tracking-wider font-semibold text-white">{project.categoryLabel}</span>
             <span className="text-white/40">·</span>
             <span className="text-[#00f0ff]">{project.year}</span>
+            {project.images && project.images.length > 1 && (
+              <>
+                <span className="text-white/40">·</span>
+                <span className="text-[#00f0ff] font-bold">{project.images.length} Media</span>
+              </>
+            )}
           </div>
 
           <motion.div
