@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { 
   Play, 
@@ -11,29 +11,19 @@ import {
   X, 
   ChevronLeft, 
   ChevronRight, 
-  ArrowUpRight, 
-  Box, 
-  Film, 
-  Palette, 
-  Sparkles, 
   Check, 
   Send, 
   Menu, 
-  ExternalLink,
-  Layers,
-  Volume2,
-  VolumeX,
-  Clock,
-  Briefcase,
-  Monitor
+  Volume2, 
+  VolumeX, 
+  Clock 
 } from 'lucide-react';
 import FluidBackground from './components/FluidBackground';
-import GradientText from './components/GlitchText';
 import CustomCursor from './components/CustomCursor';
 import ProjectCard from './components/ProjectCard';
 import { MultimediaProject, MultimediaCategory, CraftPillar, InquiryTier } from './types';
 
-// Authentic Multimedia Portfolio Works for Aabiskar
+// Authentic Multimedia Portfolio Works for Aabiskar (12 curated projects)
 const PROJECTS: MultimediaProject[] = [
   { 
     id: '1', 
@@ -110,6 +100,78 @@ const PROJECTS: MultimediaProject[] = [
     summary: 'A high-impact commercial video edit and VFX color treatment celebrating nocturnal automotive speed, neon city reflections, and pulse-raising sound design.',
     deliverables: ['Commercial Cut (60s & 30s)', 'VFX Cleanups & Neon Glow', '35mm Film Emulation', 'Dolby Vision Color Grade']
   },
+  { 
+    id: '7', 
+    title: 'Aegis-7 Autonomous Surveillance', 
+    category: '3d', 
+    categoryLabel: '3D Hard Surface', 
+    year: '2025', 
+    client: 'Onyx Defense Labs', 
+    image: '/src/assets/images/drone_3d_robotics_1792335290933.jpg',
+    tools: ['Blender', 'Fusion 360', 'Marmoset Toolbag', 'Substance Painter'],
+    summary: 'Industrial design and precision CAD hard-surface modeling of an autonomous aerial survey vehicle, featuring articulated multi-rotor carbon housings, optics array, and heat-treated brass propulsion assemblies.',
+    deliverables: ['Full Industrial CAD Model', 'PBR Material Library', 'Exploded-View Animation', 'Production Turnarounds']
+  },
+  { 
+    id: '8', 
+    title: 'Axis Architecture Identity System', 
+    category: 'graphic', 
+    categoryLabel: 'Visual Identity', 
+    year: '2024', 
+    client: 'Axis London', 
+    image: '/src/assets/images/holographic_branding_1792335310920.jpg',
+    tools: ['Illustrator', 'InDesign', 'Photoshop', 'Figma'],
+    summary: 'Comprehensive brand identity and bespoke stationery suite for an avant-garde architectural atelier. Features cyan hot-stamped stationery, structural business cards, and strict grid manuals.',
+    deliverables: ['Brand Manual & Typeface Rules', 'Hot-Foil Stationery Suite', 'Architectural Monograph Layout', 'Digital Presentation Deck']
+  },
+  { 
+    id: '9', 
+    title: 'Hyperion Zero-G Broadcast Sequence', 
+    category: 'video', 
+    categoryLabel: 'Motion & Film', 
+    year: '2024', 
+    client: 'Orbital Dynamics', 
+    image: '/src/assets/images/motion_video_reel_1792333960450.jpg',
+    tools: ['Cinema 4D', 'X-Particles', 'After Effects', 'DaVinci Resolve'],
+    summary: 'Title animation and visual effects package for a deep-space documentary broadcast. Explores zero-gravity fluid particle behaviors, procedural light refractions, and custom sound design integration.',
+    deliverables: ['Main Title Sequence (90s)', 'Broadcast Bumper Package', 'Motion Design Toolkits', 'Color Matched Master']
+  },
+  { 
+    id: '10', 
+    title: 'Quantum Lattice: Spatial WebGL', 
+    category: 'interactive', 
+    categoryLabel: 'Interactive Media', 
+    year: '2025', 
+    client: 'Lattice Protocol', 
+    image: '/src/assets/images/interactive_generative_art_1792333989351.jpg',
+    tools: ['Three.js', 'GLSL', 'TypeScript', 'WebAudio API'],
+    summary: 'An interactive 3D web experience mapping decentralized cryptographic blocks into a living spatial crystalline lattice with reactive sound design and mobile gyro responsiveness.',
+    deliverables: ['Custom Three.js Scene Engine', 'Post-Processing Shaders', 'WebAudio Frequency Analyzer', 'Responsive Touch Controls']
+  },
+  { 
+    id: '11', 
+    title: 'Sub-Bass Spectral Visualizer', 
+    category: 'interactive', 
+    categoryLabel: 'Interactive Media', 
+    year: '2025', 
+    client: 'Resonance Festival', 
+    image: '/src/assets/images/interactive_generative_art_1792333989351.jpg',
+    tools: ['TouchDesigner', 'Spout / Syphon', 'MIDI Controller API'],
+    summary: 'Stage visualizer system generating real-time geometric audio deformations synchronized with sub-bass frequencies and DJ performance control during live electronic events.',
+    deliverables: ['TouchDesigner Live Project', 'Hardware MIDI Mapping', 'Low-Latency 120fps Rendering', 'Operator Control Interface']
+  },
+  { 
+    id: '12', 
+    title: 'Cyberpunk Tokyo 2149 Lookdev', 
+    category: '3d', 
+    categoryLabel: '3D Environment', 
+    year: '2024', 
+    client: 'Sony PlayStation Studios', 
+    image: '/src/assets/images/vfx_commercial_film_1792334018715.jpg',
+    tools: ['Unreal Engine 5', 'Maya', 'Houdini', 'Octane Render'],
+    summary: 'Photorealistic cyberpunk metropolis street-level sequence lookdev, featuring wet asphalt puddle reflections, holographic store facades, and dynamic traffic simulation.',
+    deliverables: ['Real-Time Unreal Engine Level', 'Custom Hologram Shader Graph', 'Dynamic Rain & Wetness System', 'Cinematic Camera Sequences']
+  }
 ];
 
 // Core Disciplines Breakdown
@@ -126,9 +188,9 @@ const CRAFT_PILLARS: CraftPillar[] = [
     number: '02',
     title: 'Motion Design & Commercial Film',
     subtitle: 'Kinetic typography, high-impact edits, and broadcast visual effects',
-    description: 'Transforming sound and story into electrifying motion sequences. Specializing in commercial launch spots, music videos, Title sequences, and anamorphic color grading in DaVinci Resolve.',
+    description: 'Transforming sound and story into electrifying motion sequences. Specializing in commercial launch spots, music videos, title sequences, and anamorphic color grading in DaVinci Resolve.',
     tools: ['After Effects', 'Cinema 4D', 'DaVinci Resolve', 'Premiere Pro', 'Redshift'],
-    highlights: ['Kinetic Kinetic Typography', 'Dynamic Audio Synchronization', '35mm Film & Optical Grading']
+    highlights: ['Kinetic Typography', 'Dynamic Audio Synchronization', '35mm Film & Optical Grading']
   },
   {
     number: '03',
@@ -174,13 +236,16 @@ const INQUIRY_TIERS: InquiryTier[] = [
   }
 ];
 
+const PAGE_SIZE = 6;
+
 const App: React.FC = () => {
   const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, -100]);
   const opacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<MultimediaCategory>('all');
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedProject, setSelectedProject] = useState<MultimediaProject | null>(null);
   const [showreelOpen, setShowreelOpen] = useState(false);
   const [isPlayingReel, setIsPlayingReel] = useState(true);
@@ -221,9 +286,30 @@ const App: React.FC = () => {
     }
   };
 
+  // Filtered list & Pagination Math
   const filteredProjects = activeCategory === 'all' 
     ? PROJECTS 
     : PROJECTS.filter(p => p.category === activeCategory);
+
+  const totalPages = Math.ceil(filteredProjects.length / PAGE_SIZE) || 1;
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const paginatedProjects = filteredProjects.slice(startIndex, startIndex + PAGE_SIZE);
+
+  const handleCategorySelect = (category: MultimediaCategory) => {
+    setActiveCategory(category);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      const worksElem = document.getElementById('works');
+      if (worksElem) {
+        const offsetPosition = worksElem.getBoundingClientRect().top + window.scrollY - 90;
+        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+      }
+    }
+  };
 
   const navigateProject = (direction: 'next' | 'prev') => {
     if (!selectedProject) return;
@@ -245,16 +331,16 @@ const App: React.FC = () => {
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
-    }, 1500);
+    }, 1200);
   };
 
   return (
-    <div className="relative min-h-screen text-white selection:bg-[#00f0ff] selection:text-black cursor-auto md:cursor-none overflow-x-hidden bg-[#08090d]">
+    <div className="relative min-h-screen text-white selection:bg-[#00f0ff] selection:text-black cursor-auto md:cursor-none overflow-x-hidden bg-[#0a0c10]">
       <CustomCursor />
       <FluidBackground />
       
-      {/* Top Bar Contract: Zone 1 (Wordmark) — Zone 2 (4 Links) — Zone 3 (1 Primary Action) */}
-      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 md:px-12 py-5 bg-[#08090d]/80 backdrop-blur-xl border-b border-white/[0.08]">
+      {/* Top Bar: Zone 1 (Wordmark) — Zone 2 (4 Links) — Zone 3 (1 Primary Action) */}
+      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 md:px-12 py-5 bg-[#0a0c10] border-b border-white/10">
         {/* Zone 1: Wordmark */}
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -286,7 +372,7 @@ const App: React.FC = () => {
         <div className="hidden md:flex items-center shrink-0">
           <button 
             onClick={() => scrollToSection('inquiries')}
-            className="border border-[#00f0ff]/50 px-6 py-2.5 text-xs font-mono font-semibold tracking-widest uppercase bg-[#00f0ff]/10 text-[#00f0ff] hover:bg-[#00f0ff] hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all duration-300 whitespace-nowrap shrink-0 cursor-pointer"
+            className="border border-[#00f0ff] px-6 py-2.5 text-xs font-mono font-semibold tracking-widest uppercase bg-[#00f0ff] text-black hover:bg-white hover:border-white transition-colors duration-200 whitespace-nowrap shrink-0 cursor-pointer"
             data-hover="true"
           >
             Book Project
@@ -310,7 +396,7 @@ const App: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-30 bg-[#08090d]/95 backdrop-blur-2xl flex flex-col items-center justify-center gap-8 md:hidden px-6"
+            className="fixed inset-0 z-30 bg-[#0a0c10] flex flex-col items-center justify-center gap-8 md:hidden px-6"
           >
             {[
               { label: 'Selected Works', id: 'works' },
@@ -329,7 +415,7 @@ const App: React.FC = () => {
             
             <button 
               onClick={() => scrollToSection('inquiries')}
-              className="mt-6 w-full max-w-xs border border-[#00f0ff] px-8 py-3.5 text-xs font-mono font-bold tracking-widest uppercase bg-[#00f0ff] text-black shadow-[0_0_25px_rgba(0,240,255,0.4)]"
+              className="mt-6 w-full max-w-xs border border-[#00f0ff] px-8 py-3.5 text-xs font-mono font-bold tracking-widest uppercase bg-[#00f0ff] text-black"
             >
               Book Project
             </button>
@@ -338,70 +424,55 @@ const App: React.FC = () => {
       </AnimatePresence>
 
       {/* HERO SECTION */}
-      <header className="relative min-h-[100svh] flex flex-col items-center justify-center overflow-hidden px-4 pt-24 pb-16">
+      <header className="relative min-h-[92svh] flex flex-col items-center justify-center overflow-hidden px-4 pt-24 pb-12">
         <motion.div 
           style={{ y, opacity }}
           className="z-10 text-center flex flex-col items-center w-full max-w-5xl"
         >
           {/* Editorial Unboxed Kicker */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
             className="flex items-center gap-2.5 text-xs md:text-sm font-mono tracking-[0.25em] text-[#00f0ff] uppercase mb-6"
           >
             <span>MULTIMEDIA DIRECTOR</span>
-            <span className="text-white/30">·</span>
-            <span>3D ARTIST</span>
-            <span className="text-white/30">·</span>
+            <span className="text-white/40">·</span>
+            <span className="text-white">3D ARTIST</span>
+            <span className="text-white/40">·</span>
             <span className="text-[#ffb800]">MOTION DESIGNER</span>
           </motion.div>
 
-          {/* Main Name Heading with Cyber Glitch Gradient */}
+          {/* Main Name Heading - Clean Solid Typography */}
           <div className="relative w-full flex justify-center items-center my-2">
-            <GradientText 
-              text="AABISKAR" 
-              as="h1" 
-              className="text-[16vw] md:text-[13vw] leading-[0.88] font-black tracking-tighter text-center" 
-            />
-            
-            {/* Luminous Core Glow Orb */}
-            <motion.div 
-              className="absolute -z-20 w-[45vw] h-[45vw] max-w-[500px] max-h-[500px] bg-[#00f0ff]/10 blur-[60px] rounded-full pointer-events-none will-change-transform"
-              animate={{ scale: [0.85, 1.15, 0.85], opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-              style={{ transform: 'translateZ(0)' }}
-            />
+            <h1 className="text-[16vw] md:text-[13vw] leading-[0.88] font-black tracking-tighter text-center text-white">
+              AABISKAR
+            </h1>
           </div>
           
-          {/* Subtle Hairline Divider */}
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 1.2, delay: 0.4, ease: "circOut" }}
-            className="w-full max-w-sm h-px bg-gradient-to-r from-transparent via-[#00f0ff]/60 to-transparent my-6"
-          />
+          {/* Solid Clean Hairline Divider */}
+          <div className="w-full max-w-xs h-[1px] bg-white/20 my-6" />
 
           {/* High-Impact Hero Subtitle */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            className="text-base md:text-xl font-light max-w-2xl mx-auto text-gray-200 leading-relaxed px-4"
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="text-base md:text-xl font-light max-w-2xl mx-auto text-gray-300 leading-relaxed px-4"
           >
             Pioneering hyper-dimensional 3D spaces, kinetic motion narratives, and real-time interactive media for visionary brands and entertainment.
           </motion.p>
 
           {/* Dual Action Buttons: Reel & Explore */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
+            transition={{ delay: 0.35, duration: 0.6 }}
             className="flex flex-col sm:flex-row items-center gap-4 mt-8"
           >
             <button
               onClick={() => setShowreelOpen(true)}
-              className="group flex items-center gap-3 px-7 py-3.5 bg-gradient-to-r from-[#00f0ff] to-[#38bdf8] text-black font-mono text-xs font-bold uppercase tracking-widest shadow-[0_0_30px_rgba(0,240,255,0.35)] hover:shadow-[0_0_40px_rgba(0,240,255,0.6)] transition-all duration-300 cursor-pointer"
+              className="flex items-center gap-3 px-7 py-3.5 bg-[#00f0ff] text-black font-mono text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors cursor-pointer"
               data-hover="true"
             >
               <div className="w-5 h-5 rounded-full bg-black/20 flex items-center justify-center">
@@ -412,7 +483,7 @@ const App: React.FC = () => {
 
             <button
               onClick={() => scrollToSection('works')}
-              className="px-7 py-3.5 border border-white/20 text-white font-mono text-xs font-semibold uppercase tracking-widest hover:border-white hover:bg-white/5 transition-all duration-300 cursor-pointer"
+              className="px-7 py-3.5 border border-white/30 text-white font-mono text-xs font-semibold uppercase tracking-widest hover:border-white hover:bg-white/10 transition-colors cursor-pointer"
               data-hover="true"
             >
               Explore Selected Works
@@ -420,12 +491,12 @@ const App: React.FC = () => {
           </motion.div>
         </motion.div>
 
-        {/* MARQUEE CRAFT RIBBON */}
-        <div className="w-full mt-16 md:mt-24 py-3.5 bg-[#00f0ff] text-black z-20 overflow-hidden shadow-[0_0_35px_rgba(0,240,255,0.35)]">
+        {/* SOLID CRAFT RIBBON MARQUEE */}
+        <div className="w-full mt-16 md:mt-20 py-3 bg-[#00f0ff] text-black z-20 overflow-hidden border-y border-black">
           <motion.div 
             className="flex w-fit will-change-transform"
             animate={{ x: "-50%" }}
-            transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
           >
             {[0, 1].map((key) => (
               <div key={key} className="flex whitespace-nowrap shrink-0">
@@ -445,7 +516,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* WORKS SECTION */}
+      {/* WORKS SECTION WITH PAGINATION */}
       <section id="works" className="relative z-10 py-20 md:py-28">
         <div className="max-w-[1500px] mx-auto px-4 md:px-8">
           {/* Section Header */}
@@ -453,15 +524,12 @@ const App: React.FC = () => {
             <div>
               <p className="text-xs font-mono text-[#00f0ff] tracking-[0.2em] uppercase mb-2">Portfolio Monograph</p>
               <h2 className="text-4xl md:text-7xl font-heading font-bold uppercase leading-none text-white">
-                Selected <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] via-[#38bdf8] to-[#ffb800]">
-                  Creations
-                </span>
+                Selected <span className="text-[#00f0ff]">Creations</span>
               </h2>
             </div>
 
             {/* Interactive Discipline Filter Bar */}
-            <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-[#121622] rounded-lg border border-white/10">
+            <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-[#12151d] rounded-lg border border-white/10">
               {[
                 { key: 'all', label: 'All Projects', count: PROJECTS.length },
                 { key: '3d', label: '3D Design', count: PROJECTS.filter(p => p.category === '3d').length },
@@ -473,10 +541,10 @@ const App: React.FC = () => {
                 return (
                   <button
                     key={tab.key}
-                    onClick={() => setActiveCategory(tab.key as MultimediaCategory)}
-                    className={`px-3.5 py-2 text-xs font-mono tracking-wider transition-all duration-200 rounded-md flex items-center gap-2 cursor-pointer ${
+                    onClick={() => handleCategorySelect(tab.key as MultimediaCategory)}
+                    className={`px-3.5 py-2 text-xs font-mono tracking-wider transition-colors rounded-md flex items-center gap-2 cursor-pointer ${
                       isActive 
-                        ? 'bg-[#00f0ff] text-black font-bold shadow-[0_0_15px_rgba(0,240,255,0.4)]' 
+                        ? 'bg-[#00f0ff] text-black font-bold' 
                         : 'text-gray-300 hover:text-white hover:bg-white/5'
                     }`}
                   >
@@ -490,9 +558,28 @@ const App: React.FC = () => {
             </div>
           </div>
 
+          {/* Results Summary Header */}
+          <div className="flex items-center justify-between text-xs font-mono text-gray-400 mb-6 pb-3 border-b border-white/10">
+            <div className="flex items-center gap-2">
+              <span className="text-white">Collection View:</span>
+              <span className="text-[#00f0ff] uppercase">{activeCategory === 'all' ? 'All Disciplines' : activeCategory}</span>
+              <span className="text-white/30">·</span>
+              <span className="tabular-nums">
+                Showing {filteredProjects.length === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + PAGE_SIZE, filteredProjects.length)} of {filteredProjects.length} works
+              </span>
+            </div>
+
+            <div className="hidden sm:flex items-center gap-2 text-gray-400">
+              <span>Page</span>
+              <span className="text-white font-bold tabular-nums">{currentPage}</span>
+              <span>of</span>
+              <span className="text-white font-bold tabular-nums">{totalPages}</span>
+            </div>
+          </div>
+
           {/* Project Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProjects.map((project) => (
+            {paginatedProjects.map((project) => (
               <ProjectCard 
                 key={project.id} 
                 project={project} 
@@ -500,16 +587,87 @@ const App: React.FC = () => {
               />
             ))}
           </div>
+
+          {/* Clean Pagination Bar */}
+          {totalPages > 1 && (
+            <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
+              {/* Counter details */}
+              <div className="text-xs font-mono text-gray-400 tracking-wider">
+                Page <span className="text-white font-bold tabular-nums">{currentPage}</span> of <span className="text-white font-bold tabular-nums">{totalPages}</span>
+                <span className="mx-2 text-white/30">·</span>
+                <span className="text-gray-400 tabular-nums">{PAGE_SIZE} projects per page</span>
+              </div>
+
+              {/* Page Number & Arrow Controls */}
+              <div className="flex items-center gap-2">
+                {/* Previous Button */}
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2.5 text-xs font-mono uppercase tracking-wider flex items-center gap-2 border transition-colors ${
+                    currentPage === 1 
+                      ? 'border-white/10 text-white/30 cursor-not-allowed bg-transparent' 
+                      : 'border-white/20 text-white hover:border-[#00f0ff] hover:text-[#00f0ff] hover:bg-white/5 cursor-pointer bg-[#0f121a]'
+                  }`}
+                  data-hover={currentPage !== 1}
+                  aria-label="Previous Page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Prev</span>
+                </button>
+
+                {/* Page Number Buttons */}
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: totalPages }).map((_, index) => {
+                    const pageNumber = index + 1;
+                    const isActive = currentPage === pageNumber;
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`w-10 h-10 text-xs font-mono font-bold transition-colors border flex items-center justify-center cursor-pointer ${
+                          isActive 
+                            ? 'bg-[#00f0ff] text-black border-[#00f0ff]' 
+                            : 'bg-[#12151e] text-gray-300 border-white/10 hover:border-white/30 hover:text-white'
+                        }`}
+                        data-hover="true"
+                        aria-label={`Go to page ${pageNumber}`}
+                        aria-current={isActive ? 'page' : undefined}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2.5 text-xs font-mono uppercase tracking-wider flex items-center gap-2 border transition-colors ${
+                    currentPage === totalPages 
+                      ? 'border-white/10 text-white/30 cursor-not-allowed bg-transparent' 
+                      : 'border-white/20 text-white hover:border-[#00f0ff] hover:text-[#00f0ff] hover:bg-white/5 cursor-pointer bg-[#0f121a]'
+                  }`}
+                  data-hover={currentPage !== totalPages}
+                  aria-label="Next Page"
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
       {/* CRAFT DISCIPLINES SECTION */}
-      <section id="disciplines" className="relative z-10 py-20 md:py-32 bg-[#0c0f17]/80 backdrop-blur-md border-t border-b border-white/[0.08]">
+      <section id="disciplines" className="relative z-10 py-20 md:py-32 bg-[#0d0f15] border-t border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
             <p className="text-xs font-mono text-[#ffb800] tracking-[0.2em] uppercase mb-3">Multidisciplinary Practice</p>
             <h2 className="text-3xl md:text-6xl font-heading font-bold uppercase leading-tight text-white mb-4">
-              Creative <GradientText text="Disciplines" className="text-4xl md:text-7xl" />
+              Creative <span className="text-[#00f0ff]">Disciplines</span>
             </h2>
             <p className="text-base text-gray-300 font-light leading-relaxed">
               Synthesizing cinematic 3D realism, kinetic motion graphics, architectural brand systems, and living code to construct holistic sensory narratives.
@@ -520,11 +678,11 @@ const App: React.FC = () => {
             {CRAFT_PILLARS.map((pillar) => (
               <div
                 key={pillar.number}
-                className="group relative p-8 md:p-10 bg-[#121622]/90 border border-white/10 hover:border-[#00f0ff]/50 transition-all duration-300 flex flex-col justify-between"
+                className="group relative p-8 md:p-10 bg-[#12151e] border border-white/10 hover:border-[#00f0ff] transition-colors duration-200 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-6">
-                    <span className="font-heading text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] to-[#ffb800]">
+                    <span className="font-heading text-3xl font-bold text-[#00f0ff]">
                       {pillar.number}
                     </span>
                     <span className="text-xs font-mono text-gray-400 uppercase tracking-widest">Discipline</span>
@@ -541,7 +699,7 @@ const App: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="space-y-4 pt-4 border-t border-white/[0.08]">
+                <div className="space-y-4 pt-4 border-t border-white/10">
                   <div>
                     <p className="text-[11px] font-mono uppercase tracking-wider text-gray-400 mb-2">Key Highlights</p>
                     <div className="space-y-1.5">
@@ -568,18 +726,18 @@ const App: React.FC = () => {
       </section>
 
       {/* ABOUT AABISKAR SECTION */}
-      <section id="about" className="relative z-10 py-20 md:py-28 overflow-hidden">
+      <section id="about" className="relative z-10 py-20 md:py-28 bg-[#0a0c10]">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             {/* Visual Portrait / Creative Director Anchor */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-2xl overflow-hidden border border-white/10 aspect-[4/5] bg-[#0c0f18] group">
+              <div className="relative rounded-xl overflow-hidden border border-white/10 aspect-[4/5] bg-[#0c0f18] group">
                 <img 
                   src="/src/assets/images/cyber_mecha_3d_1792333944258.jpg" 
                   alt="Aabiskar Studio Lookdev"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#08090d] via-transparent to-transparent opacity-80" />
+                <div className="absolute inset-0 bg-black/40" />
                 <div className="absolute bottom-6 left-6 right-6">
                   <p className="text-xs font-mono text-[#00f0ff] uppercase tracking-wider mb-1">Creative Director</p>
                   <p className="text-2xl font-heading font-bold text-white">AABISKAR</p>
@@ -593,7 +751,7 @@ const App: React.FC = () => {
               <p className="text-xs font-mono text-[#00f0ff] tracking-[0.2em] uppercase">Artist Statement</p>
               <h2 className="text-3xl md:text-5xl font-heading font-bold leading-tight text-white">
                 Designing at the intersection of <br />
-                <span className="text-[#00f0ff]">Synthetic Light</span> & <span className="text-[#ffb800]">Cinematic Chaos</span>
+                <span className="text-[#00f0ff]">Synthetic 3D Form</span> & <span className="text-[#ffb800]">Cinematic Chaos</span>
               </h2>
               
               <p className="text-base md:text-lg text-gray-300 font-light leading-relaxed">
@@ -612,7 +770,7 @@ const App: React.FC = () => {
                   { value: '40+', label: 'Global Clients' },
                   { value: '15+', label: 'Design Accolades' },
                 ].map((stat, idx) => (
-                  <div key={idx} className="p-4 bg-[#121622]/60 rounded-lg border border-white/5">
+                  <div key={idx} className="p-4 bg-[#12151e] rounded border border-white/10">
                     <p className="text-2xl md:text-3xl font-heading font-bold text-[#00f0ff] tabular-nums">
                       {stat.value}
                     </p>
@@ -628,12 +786,12 @@ const App: React.FC = () => {
       </section>
 
       {/* COMMISSIONS & INQUIRIES SECTION */}
-      <section id="inquiries" className="relative z-10 py-20 md:py-32 bg-[#0a0d14]/90 backdrop-blur-xl border-t border-white/[0.08]">
+      <section id="inquiries" className="relative z-10 py-20 md:py-32 bg-[#0c0e14] border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
             <p className="text-xs font-mono text-[#00f0ff] tracking-[0.25em] uppercase mb-3">Project Commissions & Bookings</p>
             <h2 className="text-4xl md:text-7xl font-heading font-bold uppercase text-white mb-4">
-              Initiate <GradientText text="COLLABORATION" className="text-4xl md:text-7xl" />
+              Initiate <span className="text-[#00f0ff]">COLLABORATION</span>
             </h2>
             <p className="text-gray-300 font-light max-w-xl mx-auto text-base">
               Accepting select commercial commissions, 3D direction, motion sequences, and interactive installations.
@@ -648,10 +806,10 @@ const App: React.FC = () => {
                 <div
                   key={tier.id}
                   onClick={() => setSelectedTier(tier.id)}
-                  className={`relative p-8 md:p-10 border transition-all duration-300 flex flex-col justify-between cursor-pointer ${
+                  className={`relative p-8 md:p-10 border transition-colors duration-200 flex flex-col justify-between cursor-pointer ${
                     isSelected 
-                      ? 'bg-[#131929] border-[#00f0ff] shadow-[0_0_30px_rgba(0,240,255,0.2)]' 
-                      : 'bg-[#0f131f]/70 border-white/10 hover:border-white/30'
+                      ? 'bg-[#141824] border-[#00f0ff]' 
+                      : 'bg-[#10131c] border-white/10 hover:border-white/30'
                   }`}
                   data-hover="true"
                 >
@@ -695,7 +853,7 @@ const App: React.FC = () => {
                       e.stopPropagation();
                       setSelectedTier(tier.id);
                     }}
-                    className={`w-full mt-8 py-3 text-xs font-mono font-bold uppercase tracking-widest transition-all duration-200 border cursor-pointer ${
+                    className={`w-full mt-8 py-3 text-xs font-mono font-bold uppercase tracking-widest transition-colors border cursor-pointer ${
                       isSelected
                         ? 'bg-[#00f0ff] text-black border-[#00f0ff]'
                         : 'bg-transparent text-white border-white/20 hover:border-white hover:bg-white/5'
@@ -709,7 +867,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Interactive Direct Inquiry Form */}
-          <div className="max-w-3xl mx-auto bg-[#121622] border border-white/10 p-8 md:p-12 rounded-xl">
+          <div className="max-w-3xl mx-auto bg-[#12151e] border border-white/10 p-8 md:p-12 rounded">
             <h3 className="text-2xl font-heading font-bold uppercase text-white mb-2">
               Send Project Brief
             </h3>
@@ -721,7 +879,7 @@ const App: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="p-8 text-center bg-[#00f0ff]/10 border border-[#00f0ff]/40 rounded-lg space-y-3"
+                className="p-8 text-center bg-[#0a0c12] border border-[#00f0ff] rounded space-y-3"
               >
                 <div className="w-12 h-12 bg-[#00f0ff] text-black rounded-full flex items-center justify-center mx-auto">
                   <Check className="w-6 h-6 stroke-[3]" />
@@ -753,7 +911,7 @@ const App: React.FC = () => {
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
                       placeholder="e.g. Elena Rostova / Studio Monolith"
-                      className="w-full bg-[#0a0d14] border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00f0ff] font-mono"
+                      className="w-full bg-[#0a0c10] border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00f0ff] font-mono"
                     />
                   </div>
 
@@ -767,7 +925,7 @@ const App: React.FC = () => {
                       value={formEmail}
                       onChange={(e) => setFormEmail(e.target.value)}
                       placeholder="client@company.com"
-                      className="w-full bg-[#0a0d14] border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00f0ff] font-mono"
+                      className="w-full bg-[#0a0c10] border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00f0ff] font-mono"
                     />
                   </div>
                 </div>
@@ -782,14 +940,14 @@ const App: React.FC = () => {
                     value={formDetails}
                     onChange={(e) => setFormDetails(e.target.value)}
                     placeholder="Describe your deliverables, target dates, or creative vision..."
-                    className="w-full bg-[#0a0d14] border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00f0ff] font-mono resize-none"
+                    className="w-full bg-[#0a0c10] border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00f0ff] font-mono resize-none"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 bg-[#00f0ff] text-black font-mono text-xs font-bold uppercase tracking-widest hover:bg-[#38bdf8] hover:shadow-[0_0_25px_rgba(0,240,255,0.4)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-4 bg-[#00f0ff] text-black font-mono text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   data-hover="true"
                 >
                   {isSubmitting ? (
@@ -808,7 +966,7 @@ const App: React.FC = () => {
       </section>
 
       {/* FOOTER */}
-      <footer className="relative z-10 border-t border-white/[0.08] py-14 md:py-20 bg-[#06080b]">
+      <footer className="relative z-10 border-t border-white/10 py-14 md:py-20 bg-[#08090d]">
         <div className="max-w-7xl mx-auto px-6 md:px-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
           <div>
             <div className="font-heading text-2xl md:text-3xl font-bold tracking-tight text-white mb-2">
@@ -854,19 +1012,19 @@ const App: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowreelOpen(false)}
-            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl cursor-auto"
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/90 cursor-auto"
           >
             <motion.div
-              initial={{ scale: 0.95, y: 20 }}
+              initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
+              exit={{ scale: 0.95, y: 15 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-4xl bg-[#0d1017] border border-[#00f0ff]/30 overflow-hidden shadow-2xl shadow-[#00f0ff]/10"
+              className="relative w-full max-w-4xl bg-[#0d1017] border border-[#00f0ff] overflow-hidden"
             >
               {/* Header */}
               <div className="flex items-center justify-between p-4 px-6 border-b border-white/10 bg-[#08090d]">
                 <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#00f0ff] animate-pulse" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#00f0ff]" />
                   <span className="font-mono text-xs uppercase tracking-wider text-white">
                     Aabiskar — Official 2025 Showreel · 4K UHD
                   </span>
@@ -885,17 +1043,17 @@ const App: React.FC = () => {
                 <img 
                   src="/src/assets/images/motion_video_reel_1792333960450.jpg" 
                   alt="Showreel Preview" 
-                  className={`w-full h-full object-cover transition-transform duration-1000 ${isPlayingReel ? 'scale-105' : 'scale-100'}`}
+                  className={`w-full h-full object-cover transition-transform duration-700 ${isPlayingReel ? 'scale-105' : 'scale-100'}`}
                 />
                 
-                {/* Dynamic waveform visualizer overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent flex flex-col justify-end p-6">
-                  {/* Waveform bars simulation */}
+                {/* Solid Dark Controls Strip */}
+                <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-6">
+                  {/* Waveform bars simulation - Clean Solid Cyan */}
                   <div className="flex items-end gap-1 h-8 mb-4">
                     {Array.from({ length: 32 }).map((_, i) => (
                       <motion.div
                         key={i}
-                        className="w-1 bg-gradient-to-t from-[#00f0ff] to-[#ffb800] rounded-t-sm"
+                        className="w-1 bg-[#00f0ff] rounded-t-sm"
                         animate={{
                           height: isPlayingReel 
                             ? [`${Math.sin(i * 0.4) * 15 + 18}px`, `${Math.cos(i * 0.5) * 20 + 24}px`, `${Math.sin(i * 0.3) * 12 + 15}px`] 
@@ -912,7 +1070,7 @@ const App: React.FC = () => {
                   </div>
 
                   {/* Playback Controls Strip */}
-                  <div className="flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center justify-between text-xs font-mono bg-black/80 p-3 rounded">
                     <div className="flex items-center gap-4">
                       <button
                         onClick={() => setIsPlayingReel(!isPlayingReel)}
@@ -950,19 +1108,19 @@ const App: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedProject(null)}
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-8 bg-black/85 backdrop-blur-xl cursor-auto"
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-8 bg-black/90 cursor-auto"
           >
             <motion.div
-              initial={{ scale: 0.95, y: 20 }}
+              initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
+              exit={{ scale: 0.95, y: 15 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-5xl max-h-[92vh] overflow-y-auto bg-[#0e121a] border border-white/10 flex flex-col md:flex-row shadow-2xl shadow-[#00f0ff]/10"
+              className="relative w-full max-w-5xl max-h-[92vh] overflow-y-auto bg-[#0d1017] border border-white/20 flex flex-col md:flex-row"
             >
               {/* Close Button */}
               <button
                 onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 z-30 p-2.5 rounded-full bg-black/60 text-white hover:bg-[#00f0ff] hover:text-black transition-colors cursor-pointer"
+                className="absolute top-4 right-4 z-30 p-2.5 rounded-full bg-black text-white hover:bg-[#00f0ff] hover:text-black transition-colors cursor-pointer border border-white/20"
                 data-hover="true"
                 aria-label="Close Project"
               >
@@ -972,7 +1130,7 @@ const App: React.FC = () => {
               {/* Prev / Next Keyboard Navigation */}
               <button
                 onClick={(e) => { e.stopPropagation(); navigateProject('prev'); }}
-                className="absolute left-4 bottom-4 md:top-1/2 md:bottom-auto md:-translate-y-1/2 z-20 p-3 rounded-full bg-black/60 text-white hover:bg-[#00f0ff] hover:text-black transition-colors border border-white/10 cursor-pointer"
+                className="absolute left-4 bottom-4 md:top-1/2 md:bottom-auto md:-translate-y-1/2 z-20 p-3 rounded-full bg-black text-white hover:bg-[#00f0ff] hover:text-black transition-colors border border-white/20 cursor-pointer"
                 data-hover="true"
                 aria-label="Previous Project"
               >
@@ -981,7 +1139,7 @@ const App: React.FC = () => {
 
               <button
                 onClick={(e) => { e.stopPropagation(); navigateProject('next'); }}
-                className="absolute right-4 bottom-4 md:top-1/2 md:bottom-auto md:-translate-y-1/2 z-20 p-3 rounded-full bg-black/60 text-white hover:bg-[#00f0ff] hover:text-black transition-colors border border-white/10 cursor-pointer"
+                className="absolute right-4 bottom-4 md:top-1/2 md:bottom-auto md:-translate-y-1/2 z-20 p-3 rounded-full bg-black text-white hover:bg-[#00f0ff] hover:text-black transition-colors border border-white/20 cursor-pointer"
                 data-hover="true"
                 aria-label="Next Project"
               >
@@ -995,30 +1153,30 @@ const App: React.FC = () => {
                     key={selectedProject.id}
                     src={selectedProject.image} 
                     alt={selectedProject.title} 
-                    initial={{ opacity: 0, scale: 1.05 }}
+                    initial={{ opacity: 0, scale: 1.02 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.35 }}
+                    transition={{ duration: 0.25 }}
                     className="w-full h-full object-cover"
                   />
                 </AnimatePresence>
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0e121a] via-transparent to-transparent md:bg-gradient-to-r" />
+                <div className="absolute inset-0 bg-black/20" />
               </div>
 
               {/* Project Metadata & Narrative */}
               <div className="w-full md:w-1/2 p-8 md:p-12 pb-20 md:pb-12 flex flex-col justify-between">
                 <motion.div
                   key={selectedProject.id}
-                  initial={{ opacity: 0, x: 15 }}
+                  initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.35, delay: 0.05 }}
+                  transition={{ duration: 0.25 }}
                   className="space-y-6"
                 >
                   <div className="flex items-center gap-2 text-xs font-mono text-[#00f0ff]">
                     <span className="uppercase tracking-widest font-semibold">{selectedProject.categoryLabel}</span>
-                    <span className="text-white/30">·</span>
+                    <span className="text-white/40">·</span>
                     <span className="text-gray-300">{selectedProject.year}</span>
-                    <span className="text-white/30">·</span>
+                    <span className="text-white/40">·</span>
                     <span className="text-[#ffb800]">{selectedProject.client}</span>
                   </div>
                   

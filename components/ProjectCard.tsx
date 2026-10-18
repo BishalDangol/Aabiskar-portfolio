@@ -33,7 +33,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
 
   return (
     <motion.article
-      className="group relative h-[420px] md:h-[500px] w-full overflow-hidden border border-white/10 bg-[#0d1017] cursor-pointer transition-colors duration-300 hover:border-[#00f0ff]/50"
+      className="group relative h-[420px] md:h-[500px] w-full overflow-hidden border border-white/10 bg-[#0d1017] cursor-pointer transition-colors duration-200 hover:border-[#00f0ff]"
       initial="rest"
       whileHover="hover"
       whileTap="hover"
@@ -41,8 +41,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
       data-hover="true"
       onClick={onClick}
     >
-      {/* Background Media with Zoom */}
-      <div className="absolute inset-0 overflow-hidden bg-[#0a0c12]">
+      {/* Background Media */}
+      <div className="absolute inset-0 overflow-hidden bg-[#090b10]">
         {!imageError ? (
           <motion.img 
             src={project.image} 
@@ -51,28 +51,28 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
             onError={() => setImageError(true)}
             className="h-full w-full object-cover grayscale will-change-transform"
             variants={{
-              rest: { scale: 1, opacity: 0.65, filter: 'grayscale(70%)' },
-              hover: { scale: 1.06, opacity: 0.95, filter: 'grayscale(0%)' }
+              rest: { scale: 1, opacity: 0.7, filter: 'grayscale(60%)' },
+              hover: { scale: 1.05, opacity: 0.95, filter: 'grayscale(0%)' }
             }}
-            transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+            transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1] }}
           />
         ) : (
-          <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#0c0f18] to-[#141b2b]">
+          <div className="h-full w-full flex items-center justify-center bg-[#0d1017]">
             <div className="text-center p-6">
-              <Box className="w-12 h-12 text-[#00f0ff]/40 mx-auto mb-3" />
-              <p className="text-sm font-mono text-gray-400">{project.title}</p>
+              <Box className="w-12 h-12 text-[#00f0ff] mx-auto mb-3" />
+              <p className="text-sm font-mono text-gray-300">{project.title}</p>
             </div>
           </div>
         )}
         
-        {/* Subtle Cyber Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#08090d] via-[#08090d]/40 to-transparent group-hover:via-transparent transition-colors duration-500" />
+        {/* Solid Dark Contrast Scrim */}
+        <div className="absolute inset-0 bg-black/60 group-hover:bg-black/35 transition-colors duration-300" />
       </div>
 
       {/* Top Header: Unboxed Metadata & Hover Affordance */}
       <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-between pointer-events-none">
         <div className="flex justify-between items-start">
-          <div className="flex items-center gap-2 text-xs font-mono text-gray-300 backdrop-blur-md bg-black/40 px-3 py-1.5 rounded border border-white/10">
+          <div className="flex items-center gap-2 text-xs font-mono text-gray-200 bg-black/70 px-3 py-1.5 rounded border border-white/15">
             {getCategoryIcon(project.category)}
             <span className="uppercase tracking-wider font-semibold text-white">{project.categoryLabel}</span>
             <span className="text-white/40">·</span>
@@ -81,10 +81,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
 
           <motion.div
             variants={{
-              rest: { opacity: 0, x: 10, y: -10 },
+              rest: { opacity: 0, x: 8, y: -8 },
               hover: { opacity: 1, x: 0, y: 0 }
             }}
-            className="bg-[#00f0ff] text-black rounded-full p-2.5 shadow-[0_0_20px_rgba(0,240,255,0.5)] will-change-transform"
+            className="bg-[#00f0ff] text-black rounded-full p-2.5 will-change-transform"
           >
             <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
           </motion.div>
@@ -93,7 +93,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
         {/* Bottom Details */}
         <div className="space-y-2">
           {/* Client & Role */}
-          <p className="text-xs font-mono tracking-widest uppercase text-[#ffb800] font-medium">
+          <p className="text-xs font-mono tracking-widest uppercase text-[#ffb800] font-semibold">
             {project.client}
           </p>
 
@@ -103,20 +103,20 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
               className="font-heading text-2xl md:text-3xl font-bold uppercase text-white leading-tight will-change-transform"
               variants={{
                 rest: { y: 0 },
-                hover: { y: -3 }
+                hover: { y: -2 }
               }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.25 }}
             >
               {project.title}
             </motion.h3>
           </div>
 
           {/* Tools stack preview */}
-          <div className="pt-2 flex flex-wrap gap-x-2 gap-y-1 text-xs text-gray-400 font-mono">
+          <div className="pt-2 flex flex-wrap gap-x-2 gap-y-1 text-xs text-gray-300 font-mono">
             {project.tools.slice(0, 3).map((tool, idx) => (
               <React.Fragment key={tool}>
                 <span>{tool}</span>
-                {idx < Math.min(project.tools.length, 3) - 1 && <span className="text-white/20">/</span>}
+                {idx < Math.min(project.tools.length, 3) - 1 && <span className="text-white/30">/</span>}
               </React.Fragment>
             ))}
           </div>
